@@ -20,7 +20,6 @@ async def Credential_Input(page,random_email,password):
 
 @pytest.mark.asyncio
 async def Logout_Account(page):
-    print ("This is working 2")
     await page.locator('#wishlist-icon > div > svg').click()
     await page.wait_for_load_state('load')
 
@@ -29,12 +28,11 @@ async def Logout_Account(page):
 
 @pytest.mark.asyncio
 async def Sign_Up_Account(page,random_email,password):
-    print("this is working 1")
     
     await page.locator('#section-3942 > header > nav > div.page-container > div > div.flex.items-center.gap-4.flex-1.justify-end > div:nth-child(2)').click()
     await page.wait_for_load_state('load')
 
-    await page.screenshot(path="screenshots/screenshot.png")
+    #await page.screenshot(path="screenshots/screenshot.png")
     await page.locator('#login > div > div > a:nth-child(1)').click()
     await page.wait_for_load_state('load')
     await Credential_Input(page,random_email,password)
@@ -45,14 +43,12 @@ async def Sign_Up_Account(page,random_email,password):
     
 @pytest.mark.asyncio
 async def Login_Account(page,random_email,password):
-    print("this is working 3")
     await page.locator('#section-3942 > header > nav > div.page-container > div > div.flex.items-center.gap-4.flex-1.justify-end > div:nth-child(2) > button > svg').click()
     await page.wait_for_load_state('load')
     await Credential_Input(page,random_email,password)
 
 @pytest.mark.asyncio
 async def Shopping_Item(page,Ordered_Item,Ordered_Size):
-    print("this is working 4")
     await page.locator('#block-6467 > a > span').click()
     await page.wait_for_load_state('load')
 
@@ -73,7 +69,6 @@ async def Shopping_Item(page,Ordered_Item,Ordered_Size):
 
 @pytest.mark.asyncio
 async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity):
-    print("this is working 5")
     await asyncio.sleep(5)
     await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.flex.justify-between > a')).to_contain_text(Ordered_Item) # assertion for ordered item
     await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.mb-2.text-sm > span')).to_contain_text(str(Ordered_Price)) # assertion for price
@@ -101,7 +96,6 @@ async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_addre
 
 @pytest.mark.asyncio
 async def Verify_Order_Completion(page,Confirmed_Order):
-    print("this is working 5")
     await asyncio.sleep(5) # timer for delay to process checkout
     await page.wait_for_load_state('load')
     await expect(page.locator('[id^="order_"] > div:nth-child(3) > h5')).to_contain_text(Confirmed_Order) #validates order confirmation
