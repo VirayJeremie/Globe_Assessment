@@ -68,7 +68,7 @@ async def Shopping_Item(page,Ordered_Item,Ordered_Size):
     await asyncio.sleep(5) # timer for delay to process items in cart
 
 @pytest.mark.asyncio
-async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity):
+async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity,Checkout_card_number,Checkout_card_cvc,Checkout_card_date):
     await asyncio.sleep(5)
     await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.flex.justify-between > a')).to_contain_text(Ordered_Item) # assertion for ordered item
     await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.mb-2.text-sm > span')).to_contain_text(str(Ordered_Price)) # assertion for price
@@ -89,8 +89,14 @@ async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_addre
     await page.get_by_text("Save and Continue").click()
     await page.wait_for_load_state('load')
 
-    await asyncio.sleep(5)
-    await page.locator('#order_payments_attributes__payment_method_id_24').click()
+    #await page.locator('#order_payments_attributes__payment_method_id_24').click()
+    await asyncio.sleep(10)
+    card_frame = page.frame_locator('iframe[src*="elements-inner-payment"]')
+    await card_frame.locator('input[name="number"]').fill(Checkout_card_number)
+    await card_frame.locator('input[name="expiry"]').fill(Checkout_card_date)
+    await card_frame.locator('input[name="cvc"]').fill(Checkout_card_cvc)
+
+    await page.locator('#checkout-payment-submit').scroll_into_view_if_needed()
     await page.locator('#checkout-payment-submit').click()
     await page.wait_for_load_state('load')
 
@@ -104,7 +110,7 @@ async def Verify_Order_Completion(page,Confirmed_Order):
 @pytest.mark.asyncio
 async def test_main():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False)
         context = await browser.new_context(
             viewport={"width": 1920, "height": 1080},
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -137,7 +143,7 @@ async def test_main():
         Ordered_Price = Order_Information.Ordered_Price
         Confirmed_Order = Order_Information.Confirmed_Order
 
-        # Shop Clothes/Items
+        # Shop Clothes/Items 
         await Shopping_Item(page,Ordered_Item,Ordered_Size)
 
         # Instantiate constant values for Checkout Details
@@ -147,9 +153,14 @@ async def test_main():
         Checkout_address1 = Checkout_Information.address1
         Checkout_city = Checkout_Information.city
         Checkout_zipcode = Checkout_Information.zipcode
+        Checkout_card_number = Checkout_Information.card_number
+        Checkout_card_cvc = Checkout_Information.card_cvc
+        Checkout_card_date = Checkout_Information.card_date
 
         # Checkout and Process payment 
-        await Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity)
+        await Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,
+                            Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity,
+                            Checkout_card_number,Checkout_card_cvc,Checkout_card_date)
 
         # Verify Order is completed
         await Verify_Order_Completion(page,Confirmed_Order)
