@@ -146,7 +146,6 @@ async def main():
 
         await page.wait_for_load_state('load')
 
-        await page.pause()
-        await browser.close
+        await browser.close()
 
 asyncio.run(main())
