@@ -58,8 +58,15 @@ async def Shopping_Item(page,Ordered_Item,Ordered_Size):
     await page.locator('#product-details-page > div.lg\:col-span-5.lg\:col-start-8 > div > div.h-full.w-full.waitlist-modal > form > div.flex.w-full.my-5 > div.w-full.bottom-0.flex.flex-col.gap-4.z-10 > button').click()
     await asyncio.sleep(5) # timer for delay to process items in cart
 
-async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode):
+async def Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity):
     print("this is working 5")
+    await asyncio.sleep(5)
+    await page.wait_for_load_state('load')
+
+    await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.flex.justify-between > a')).to_contain_text(Ordered_Item) # assertion for ordered item
+    await expect(page.locator('[id^="line_item_"] > li > div.ml-3.w-full > div.mb-2.text-sm > span')).to_contain_text(str(Ordered_Price)) # assertion for price
+    await expect(page.locator('#line_item_quantity')).to_have_value(str(Ordered_Quantity)) # assertion for quantity
+
     await asyncio.sleep(5)
     await page.wait_for_load_state('load')
     await page.locator('#cart_summary > div > div.flex.flex-col.gap-4.mt-4.w-full.justify-end.items-end > div.flex.flex-col.gap-4.w-full > a').click()
@@ -116,7 +123,9 @@ async def main():
         Order_Information = Order_Details()
         Ordered_Item = Order_Information.Ordered_item
         Ordered_Size = Order_Information.Ordered_Size
-        Confirmed_Order =Order_Information.Confirmed_Order
+        Ordered_Quantity = Order_Information.Ordered_Quantity
+        Ordered_Price = Order_Information.Ordered_Price
+        Confirmed_Order = Order_Information.Confirmed_Order
 
         # Shop Clothes/Items
         await Shopping_Item(page,Ordered_Item,Ordered_Size)
@@ -130,7 +139,7 @@ async def main():
         Checkout_zipcode = Checkout_Information.zipcode
 
         # Checkout and Process payment 
-        await Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode)
+        await Checkout_Item(page,Checkout_firstname,Checkout_lastname,Checkout_address1,Checkout_city,Checkout_zipcode,Ordered_Item,Ordered_Price,Ordered_Quantity)
 
         # Verify Order is completed
         await Verify_Order_Completion(page,Confirmed_Order)
