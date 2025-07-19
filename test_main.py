@@ -95,7 +95,7 @@ async def Verify_Order_Completion(page,Confirmed_Order):
 
 async def main():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context(
             viewport={"width": 1920, "height": 1080}
         )
